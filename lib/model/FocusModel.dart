@@ -1,13 +1,13 @@
-class FocusList {
-  List<FocusModel>? result;
+class FocusModel {
+  List<FocusItem>? result;
 
-  FocusList({this.result});
+  FocusModel({this.result});
 
-  FocusList.fromJson(Map<String, dynamic> json) {
+  FocusModel.fromJson(Map<String, dynamic> json) {
     if (json['result'] != null) {
-      result = <FocusModel>[];
+      result = <FocusItem>[];
       json['result'].forEach((v) {
-        result!.add(FocusModel.fromJson(v));
+        result!.add(FocusItem.fromJson(v));
       });
     }
   }
@@ -21,16 +21,16 @@ class FocusList {
   }
 }
 
-class FocusModel {
+class FocusItem {
   String? id;
   String? title;
   String? status;
   String? url;
   String? pic;
 
-  FocusModel({this.id, this.title, this.status, this.url, this.pic});
+  FocusItem({this.id, this.title, this.status, this.url, this.pic});
 
-  FocusModel.fromJson(Map<String, dynamic> json) {
+  FocusItem.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     title = json['title'];
     status = json['status'];

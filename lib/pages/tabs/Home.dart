@@ -2,7 +2,9 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jd_shop/config/config.dart';
 import 'package:jd_shop/model/FocusModel.dart';
+import 'package:jd_shop/model/ProductModel.dart';
 import 'package:jd_shop/services/ScreenAdapter.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,20 +16,47 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  var _focusData ;
+  List _focusData = [];
+  List _hotProductData = [];
+  List _bestProductData = [];
   @override
   void initState() {
     super.initState();
     _getFocusData();
+    _getHotProductData();
+    _getBestProductData();
   }
 
+// 获取轮播图
+
   _getFocusData() async {
-    var api = "http://127.0.0.1:4523/m1/4710834-0-default/getFocus";
+    var api = "${Config.baseUrl}/getFocus";
     var result = await Dio().get(api);
-    var focusList = FocusList.fromJson(result.data);
+    var focusList = FocusModel.fromJson(result.data);
     setState(() {
-      _focusData = focusList.result;
-      // print(_focusData);
+      _focusData = focusList.result!;
+    });
+  }
+
+  // 获取猜你喜欢
+  _getHotProductData() async {
+    var api = '${Config.baseUrl}/plist';
+    var result = await Dio().get(api);
+    var hotProductList = ProductModel.fromJson(result.data);
+
+    setState(() {
+      _hotProductData = hotProductList.result!;
+    });
+  }
+
+  // 获取热门商品
+  _getBestProductData() async {
+    var api = '${Config.baseUrl}/plist';
+    var result = await Dio().get(api);
+    var bestProductList = ProductModel.fromJson(result.data);
+
+    setState(() {
+      _bestProductData = bestProductList.result!;
     });
   }
 
@@ -50,7 +79,7 @@ class HomePageState extends State<HomePage> {
         child: Swiper(
           itemBuilder: (BuildContext context, int index) {
             return Image.network(
-              _focusData[index]['url'],
+              _focusData[index].url,
               fit: BoxFit.fill,
             );
           },
@@ -95,25 +124,26 @@ class HomePageState extends State<HomePage> {
           height: ScreenAdapter.height(10),
         ),
         _titleWidget("热门推荐"),
-        Container(
-          padding: const EdgeInsets.all(10),
-          child: Wrap(
-            runSpacing: 10,
-            spacing: 10,
-            children: [
-              _recProductListWidget(),
-              _recProductListWidget(),
-              _recProductListWidget(),
-              _recProductListWidget()
-            ],
-          ),
-        )
+        bestProductWidget(),
       ],
     );
   }
 
-  Widget _recProductListWidget() {
+  Widget bestProductWidget() {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Wrap(
+          runSpacing: 10,
+          spacing: 10,
+          children: _bestProductData
+              .map((value) => _recProductListWidget(value))
+              .toList()),
+    );
+  }
+
+  Widget _recProductListWidget(value) {
     var itemWidth = (ScreenAdapter.getScreenWidth() - 30) / 2;
+
     return Container(
       padding: const EdgeInsets.all(5),
       width: itemWidth,
@@ -127,33 +157,34 @@ class HomePageState extends State<HomePage> {
         children: [
           SizedBox(
               width: double.infinity,
-              child: Image.network(
-                "https://www.loliapi.com/acg/pc/",
-              )),
+              child: Image.network(value.pic
+                  // "https://www.loliapi.com/acg/pc/",
+                  )),
           Padding(
               padding: EdgeInsets.only(top: ScreenAdapter.height(15)),
-              child: const Text(
-                "loshiki",
+              child: Text(
+                // "loshiki",
+                "${value.title}",
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: Colors.black54),
+                style: const TextStyle(color: Colors.black54),
               )),
           Padding(
               padding: EdgeInsets.only(top: ScreenAdapter.height(15)),
-              child: const Stack(
+              child: Stack(
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "\$12",
-                      style: TextStyle(color: Colors.red, fontSize: 16),
+                      "\$${value.price}",
+                      style: const TextStyle(color: Colors.red, fontSize: 16),
                     ),
                   ),
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      "\$123",
-                      style: TextStyle(
+                      "\$${value.oldPrice}",
+                      style: const TextStyle(
                           color: Colors.black54,
                           fontSize: 14,
                           decoration: TextDecoration.lineThrough),
@@ -167,36 +198,43 @@ class HomePageState extends State<HomePage> {
   }
 
   Widget _hotProductListWidget() {
-    return SizedBox(
-      height: ScreenAdapter.height(200),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) {
-          return Column(
-            children: [
-              Container(
-                  height: ScreenAdapter.height(140),
-                  width: ScreenAdapter.width(140),
-                  padding: EdgeInsets.all(ScreenAdapter.width(15)),
-                  margin: EdgeInsets.only(right: ScreenAdapter.width(21)),
-                  child: AspectRatio(
-                    // make the photo to be same size
-                    aspectRatio: 1 / 1,
-                    child: Image.network(
-                      "https://www.loliapi.com/acg/pc",
-                      fit: BoxFit.cover,
-                    ),
-                  )),
-              Container(
-                padding: EdgeInsets.only(top: ScreenAdapter.height(10)),
-                height: ScreenAdapter.height(44),
-                child: Text("第$index条"),
-              )
-            ],
-          );
-        },
-        itemCount: 80,
-      ),
-    );
+    if (_hotProductData.isNotEmpty) {
+      return SizedBox(
+        height: ScreenAdapter.height(200),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) {
+            return Column(
+              children: [
+                Container(
+                    height: ScreenAdapter.height(140),
+                    width: ScreenAdapter.width(140),
+                    padding: EdgeInsets.all(ScreenAdapter.width(15)),
+                    margin: EdgeInsets.only(right: ScreenAdapter.width(21)),
+                    child: AspectRatio(
+                      // make the photo to be same size
+                      aspectRatio: 1 / 1,
+                      child: Image.network(
+                        "${_hotProductData[index].sPic}",
+                        fit: BoxFit.cover,
+                      ),
+                    )),
+                Container(
+                  padding: EdgeInsets.only(top: ScreenAdapter.height(10)),
+                  height: ScreenAdapter.height(44),
+                  child: Text(
+                    "${_hotProductData[index].price}",
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                )
+              ],
+            );
+          },
+          itemCount: _hotProductData.length,
+        ),
+      );
+    } else {
+      return const Text("正在加载");
+    }
   }
 }
