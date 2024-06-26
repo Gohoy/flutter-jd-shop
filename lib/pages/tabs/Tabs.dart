@@ -14,8 +14,15 @@ class Tabs extends StatefulWidget {
 }
 
 class TabsState extends State<Tabs> {
-  int _currentIndex = 0;
-  final List _pageList = [
+  int _currentIndex = 1;
+  var _pageController;
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  final List<Widget> _pageList = [
     const HomePage(),
     const CategoryPage(),
     const CartPage(),
@@ -27,12 +34,16 @@ class TabsState extends State<Tabs> {
       appBar: AppBar(
         title: const Text("jdshop"),
       ),
-      body: _pageList[_currentIndex],
+      body: PageView(
+        controller: _pageController,
+        children: _pageList,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => {
           setState(() {
             _currentIndex = index;
+            _pageController.jumpToPage(index);
           })
         },
         type: BottomNavigationBarType.fixed,

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:jd_shop/pages/ProductList.dart';
 import 'package:jd_shop/pages/search.dart';
 import 'package:jd_shop/pages/tabs/Tabs.dart';
 
 final routes = {
   '/': (context) => const Tabs(),
-  '/search': (context) => const SearchPage()
+  '/search': (context) => const SearchPage(),
+  '/productList': (context, {arguments}) =>
+      ProductListPage(arguments: arguments),
 };
 var onGenerateRoute = (RouteSettings settings) {
   final String? name = settings.name;

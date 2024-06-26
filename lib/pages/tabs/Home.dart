@@ -15,7 +15,10 @@ class HomePage extends StatefulWidget {
   }
 }
 
-class HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   List _focusData = [];
   List _hotProductData = [];
   List _bestProductData = [];
@@ -111,6 +114,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     ScreenUtil.init(context, designSize: const Size(750, 1334));
     return ListView(
       children: <Widget>[
