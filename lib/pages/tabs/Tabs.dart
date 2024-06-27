@@ -3,6 +3,7 @@ import 'package:jd_shop/pages/tabs/Home.dart';
 import 'package:jd_shop/pages/tabs/Cart.dart';
 import 'package:jd_shop/pages/tabs/Caregory.dart';
 import 'package:jd_shop/pages/tabs/User.dart';
+import 'package:jd_shop/services/ScreenAdapter.dart';
 
 class Tabs extends StatefulWidget {
   const Tabs({super.key});
@@ -30,13 +31,62 @@ class TabsState extends State<Tabs> {
   ];
   @override
   Widget build(BuildContext context) {
+    ScreenAdapter().init(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("jdshop"),
-      ),
+      appBar: _currentIndex != 3
+          ? AppBar(
+              leading: const IconButton(
+                onPressed: null,
+                icon: Icon(
+                  Icons.center_focus_weak,
+                  size: 28,
+                  color: Colors.black87,
+                ),
+              ),
+              title: InkWell(
+                child: Container(
+                  height: ScreenAdapter.height(68),
+                  padding: EdgeInsets.only(left: 10),
+                  decoration: BoxDecoration(
+                      color: Color.fromRGBO(233, 233, 233, 0.8),
+                      borderRadius: BorderRadius.circular(30)),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(Icons.search),
+                      Text(
+                        "笔记本",
+                        style: TextStyle(fontSize: ScreenAdapter.size(28)),
+                      )
+                    ],
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pushNamed(context, "/search");
+                },
+              ),
+              actions: const [
+                  IconButton(
+                    onPressed: null,
+                    icon: Icon(
+                      Icons.message,
+                      size: 28,
+                      color: Colors.black87,
+                    ),
+                  )
+                ])
+          : AppBar(
+              title: const Text("用户中心"),
+            ),
       body: PageView(
         controller: _pageController,
         children: _pageList,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        // physics: NeverScrollableScrollPhysics, // 禁止滑动
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

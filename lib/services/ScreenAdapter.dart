@@ -21,4 +21,8 @@ class ScreenAdapter {
   static getScreenWidth() {
     return ScreenUtil().screenWidth;
   }
+
+  static size(double size) {
+    return ScreenUtil().setSp(size);
+  }
 }
